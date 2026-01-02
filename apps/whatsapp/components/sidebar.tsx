@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, MessageSquarePlus, Settings, Phone, User, Archive, Star, Sun, Moon, Check, CheckCheck } from "lucide-react"
+import { Search, MessageSquarePlus, Settings, Phone, User, Archive, Star, Sun, Moon, Check, CheckCheck, Bot } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -62,7 +62,8 @@ export function Sidebar({ onSelectContact, selectedContactId, activeTab, onTabCh
     (contact: any) => {
       const matchesSearch = contact.name?.toLowerCase().includes(searchQuery.toLowerCase()) || contact.phoneNumber?.includes(searchQuery)
       if (activeTab === "starred") return matchesSearch && contact.isStarred
-      if (activeTab === "archived") return false // Placeholder
+      if (activeTab === "archived") return false 
+      if (activeTab === "agent") return false // Hide chats in agent mode
       return matchesSearch
     }
   )
@@ -126,6 +127,7 @@ export function Sidebar({ onSelectContact, selectedContactId, activeTab, onTabCh
                      <NavItem id="chats" icon={MessageSquarePlus} label="Chats" />
                      <NavItem id="status" icon={Phone} label="Calls" />
                      <NavItem id="starred" icon={Star} label="Starred" />
+                     <NavItem id="agent" icon={Bot} label="Agent" />
                 </div>
             </div>
             
@@ -248,9 +250,19 @@ export function Sidebar({ onSelectContact, selectedContactId, activeTab, onTabCh
           ))
         ) : (
           <div className="flex flex-col items-center justify-center mt-12 text-center text-muted-foreground p-4">
-            <Search className="h-8 w-8 mb-2 opacity-20" />
-            <p className="text-sm font-medium">No chats found</p>
-            <p className="text-xs opacity-60 mt-1">Start a new conversation</p>
+            {activeTab === 'agent' ? (
+                <>
+                    <Bot className="h-8 w-8 mb-2 opacity-50 text-primary" />
+                    <p className="text-sm font-medium text-foreground">Agent Mode</p>
+                    <p className="text-xs opacity-60 mt-1 max-w-[200px]">Configure your automated workflow in the main specific view.</p>
+                </>
+            ) : (
+                <>
+                    <Search className="h-8 w-8 mb-2 opacity-20" />
+                    <p className="text-sm font-medium">No chats found</p>
+                    <p className="text-xs opacity-60 mt-1">Start a new conversation</p>
+                </>
+            )}
           </div>
         )}
       </div>

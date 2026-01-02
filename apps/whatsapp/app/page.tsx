@@ -5,6 +5,7 @@ import { SettingsView } from "@/components/settings-view"
 import { Sidebar } from "@/components/sidebar"
 import { ChatWindow } from "@/components/chat-window"
 import { ContactInfoSidebar } from "@/components/contact-info-sidebar"
+import { WorkflowBuilder } from "@/components/workflow-builder"
 
 export default function WhatsAppClone() {
   const [activeTab, setActiveTab] = useState("chats")
@@ -14,6 +15,7 @@ export default function WhatsAppClone() {
   // Handlers
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
+    setSelectedContact(null) // Clear active chat when switching tabs
     if (tab === "settings") {
       // Optional: Logic to open settings dialog instead of full view
     }
@@ -56,6 +58,8 @@ export default function WhatsAppClone() {
                      </div>
                   ) : activeTab === "settings" ? (
                       <SettingsView />
+                  ) : activeTab === "agent" ? (
+                      <WorkflowBuilder />
                   ) : (
                       // Empty State
                       <div className="h-full w-full flex flex-col items-center justify-center bg-muted/20 text-muted-foreground p-8">
