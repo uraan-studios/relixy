@@ -22,11 +22,13 @@ export function useContacts() {
             const rawData = event.data !== undefined ? event.data : event;
             const data = typeof rawData === "string" ? JSON.parse(rawData) : rawData;
             
+            // console.log("WS Event in useContacts:", data.type); // Debugging
+
             if (data.type === "contacts_list") {
                 setContacts(data.data || [])
             }
 
-            if (data.type === "message") {
+            if (data.type === "message" || data.type === "read_update") {
                 ws.send({ action: "get_contacts", data: {} })
             }
         })

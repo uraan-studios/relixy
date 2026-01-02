@@ -50,13 +50,27 @@ export function useMessages(phoneNumber?: string) {
   }, [phoneNumber])
 
   const sendMessage = useCallback(async (msgData: any) => {
-      if (wsRef.current) {
-          wsRef.current.send({ action: "send_message", data: msgData })
-      } else {
-          // Fallback or queue if WS not ready
-          console.warn("WS not ready, skipping message send");
+      try {
+        if (wsRef.current) {
+            wsRef.current.send({ action: "send_message", data: msgData })
+        } else {
+            console.warn("WS not ready, skipping message send");
+        }
+      } catch (e) {
+        console.error("Error sending message:", e)
       }
   }, [])
+
+  const markRead = useCallback(() => {
+    try {
+        if (wsRef.current && phoneNumber) {
+            wsRef.current.send({ action: "mark_read", data: { phoneNumber } })
+        }
+    } catch (e) {
+        // Ignore "object not usable" errors on unmount
+        console.warn("Failed to mark read (socket likely closed):", e)
+    }
+  }, [phoneNumber])
 
   return {
     messages: wsMessages,
@@ -68,6 +82,7 @@ export function useMessages(phoneNumber?: string) {
             wsRef.current.send({ action: "get_messages", data: { phoneNumber } })
         }
     },
-    sendMessage
+    sendMessage,
+    markRead
   }
 }

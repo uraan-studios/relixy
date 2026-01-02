@@ -23,7 +23,7 @@ interface ChatWindowProps {
 }
 
 export function ChatWindow({ contact, onBack, onProfileClick }: ChatWindowProps) {
-  const { messages, mutate, lastReceivedAt, sendMessage: wsSendMessage } = useMessages(contact.phoneNumber)
+  const { messages, mutate, lastReceivedAt, sendMessage: wsSendMessage, markRead } = useMessages(contact.phoneNumber)
   
   const phoneNumber = contact.phoneNumber
   const contactName = contact.name
@@ -42,6 +42,11 @@ export function ChatWindow({ contact, onBack, onProfileClick }: ChatWindowProps)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Mark read on load and when new messages arrive
+  useEffect(() => {
+    markRead()
+  }, [messages, markRead])
 
   useEffect(() => {
     if (scrollRef.current) {
