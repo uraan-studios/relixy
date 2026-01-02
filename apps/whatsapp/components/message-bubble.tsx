@@ -1,7 +1,6 @@
 "use client"
 
-import { Check, CheckCheck, FileIcon, Star } from "lucide-react"
-import { toast } from "sonner"
+import { Check, CheckCheck, FileIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface MessageBubbleProps {
@@ -9,7 +8,7 @@ interface MessageBubbleProps {
   time: string
   isSender: boolean
   status?: "sent" | "delivered" | "read"
-  type?: "text" | "image" | "file"
+  type?: "text" | "image" | "file" | "template"
   mediaUrl?: string
   caption?: string
 }
@@ -23,7 +22,7 @@ export function MessageBubble({
   mediaUrl,
   caption,
 }: MessageBubbleProps) {
-  // Fix for ngrok abuse protection etc if needed, but for now simple
+  
   // Helper to resolve media URL
   const API_BASE_URL = "http://localhost:8080";
   let displayUrl = mediaUrl;
@@ -41,77 +40,66 @@ export function MessageBubble({
   }
 
   return (
-    <div className={cn("flex w-full mb-2", isSender ? "justify-end" : "justify-start")}>
+    <div
+      className={cn(
+        "flex w-full mb-2",
+        isSender ? "justify-end" : "justify-start"
+      )}
+    >
       <div
         className={cn(
-          "max-w-[75%] rounded-lg shadow-sm relative group transition-all",
+          "relative max-w-[85%] sm:max-w-[70%] md:max-w-[60%] rounded-2xl px-3 py-2 shadow-sm text-sm transition-all duration-200 group",
+          "animate-in fade-in slide-in-from-bottom-2",
           isSender
-            ? "bg-primary/20 text-foreground rounded-tr-none border border-primary/20"
-            : "bg-muted text-foreground rounded-tl-none border border-border/50",
-          type === "image" ? "p-1" : "px-3 py-1.5",
+            ? "bg-primary text-primary-foreground rounded-tr-sm bg-linear-to-br from-primary to-primary/90 border border-primary/20"
+            : "bg-card text-card-foreground rounded-tl-sm backdrop-blur-md border border-border/50 shadow-sm",
+          type === "image" && "p-1"
         )}
       >
-        {/* Triangle Tail */}
-        <div
-          className={cn(
-            "absolute top-0 w-2 h-2",
-            isSender
-          )}
-        />
-        
-        {/* Star Button (Hover) */}
-        <button
-            onClick={(e) => {
-                e.stopPropagation()
-                // TODO: Implement onStar callback
-                toast("Starred") 
-            }}
-            className="absolute top-1 right-8 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-black/10 rounded-full"
-        >
-            <Star className="h-3 w-3 text-[#8696a0] fill-current" />
-        </button>
-
-        <div className="flex flex-col gap-0.5">
-          {type === "image" && mediaUrl && (
-            <div className="flex flex-col gap-1">
+        {/* Attachment: Image */}
+        {type === "image" && displayUrl && (
+            <div className="relative mb-1 rounded-xl overflow-hidden bg-muted/50">
               <img
-                src={displayUrl || "/placeholder.svg"}
-                alt="Shared media"
-                className="rounded-md max-h-60 object-cover cursor-pointer"
-                referrerPolicy="no-referrer"
+                src={displayUrl}
+                alt="Attachment"
+                className="max-w-full h-auto object-cover max-h-[300px]"
+                loading="lazy"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none'
-                  e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<p class="text-xs text-red-500">Failed to load image</p>')
+                  e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<div class="p-4 text-xs text-destructive bg-destructive/10 flex items-center justify-center rounded-lg">Failed to load image</div>')
                 }}
               />
-              {caption && <p className="text-[13px] px-2 pt-1">{caption}</p>}
             </div>
-          )}
+        )}
 
-          {type === "file" && (
-            <div className="flex items-center gap-3 bg-background/20 p-2 rounded-md border border-white/5">
-              <div className="bg-primary/30 p-2 rounded">
+        {/* Attachment: File */}
+        {type === "file" && (
+            <div className="flex items-center gap-3 bg-muted/50 p-2 rounded-lg border border-border/50 mb-1">
+              <div className="bg-primary/10 p-2 rounded-md">
                 <FileIcon className="h-5 w-5 text-primary" />
               </div>
               <div className="flex flex-col overflow-hidden">
-                <span className="text-[12px] font-medium truncate">Document</span>
-                <span className="text-[10px] text-muted-foreground">FILE</span>
+                <span className="text-xs font-medium truncate opacity-90">Attachment</span>
+                <span className="text-[10px] opacity-70 uppercase">FILE</span>
               </div>
             </div>
+        )}
+
+        {/* Text Content */}
+        {(type === "text" || type === "template" || caption) && (
+            <p className={cn("leading-relaxed whitespace-pre-wrap break-words px-1", type !== 'text' && "pt-1")}>
+                {caption || message}
+            </p>
+        )}
+
+        {/* Metadata (Time + Status) */}
+        <div className={cn("flex items-center justify-end gap-1 mt-1 select-none opacity-70", isSender ? "text-primary-foreground/90" : "text-muted-foreground")}>
+          <span className="text-[10px] font-medium">{time}</span>
+          {isSender && (
+            <span className={cn("flex", status === "read" ? "text-blue-200" : "currentColor")}>
+               {status === "read" || status === "delivered" ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />}
+            </span>
           )}
-
-          {type === "text" && message && <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{message}</p>}
-
-          <div className="flex items-center justify-end gap-1 mt-0.5 self-end px-1">
-            <span className="text-[9px] text-muted-foreground font-medium uppercase">{time}</span>
-            {isSender && (
-              <div className="flex items-center">
-                {status === "sent" && <Check className="h-3 w-3 text-muted-foreground" />}
-                {status === "delivered" && <CheckCheck className="h-3 w-3 text-muted-foreground" />}
-                {status === "read" && <CheckCheck className="h-3 w-3 text-primary" />}
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </div>

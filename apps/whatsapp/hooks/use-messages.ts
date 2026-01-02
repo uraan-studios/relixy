@@ -1,35 +1,73 @@
 import useSWR from "swr"
+import { useEffect, useState, useCallback, useRef } from "react"
+import { client } from "@/lib/api"
 
-const API_BASE_URL = "http://localhost:8080" // Configure this properly in real app
-
-const fetcher = async (url: string) => {
-  const res = await fetch(url)
-  return res.json()
-}
+// type App = any; // No longer needed as we import typed client
+// const API_BASE_URL = "http://localhost:8080" 
+// const client: any = treaty<App>(API_BASE_URL)
 
 export function useMessages(phoneNumber?: string) {
-  const { data, error, mutate } = useSWR(
-    phoneNumber ? `${API_BASE_URL}/messages/${phoneNumber}` : null,
-    async (url: string) => {
-      const response = await fetcher(url)
-      // Server now returns { data: [], meta: { lastReceivedAt } }
-      // Or fallback if array
-      const msgs = Array.isArray(response) ? response : (response.data || [])
-      const meta = !Array.isArray(response) ? response.meta : {}
+  const [wsMessages, setWsMessages] = useState<any[]>([])
+  const [lastReceivedAt, setLastReceivedAt] = useState<string | null>(null)
+  const [isWsConnecting, setIsWsConnecting] = useState(true)
+  const wsRef = useRef<any>(null)
+
+  useEffect(() => {
+    if (!phoneNumber) return
+
+    const ws = client.ws.subscribe()
+    wsRef.current = ws
+    
+    ws.on("open", () => {
+        setIsWsConnecting(false)
+        ws.send({ action: "get_messages", data: { phoneNumber } })
+    })
+
+    ws.on("message", (event: any) => {
+      if (!event) return;
+      // Handle both standard MessageEvent and Eden's direct data
+      const rawData = event.data !== undefined ? event.data : event;
+      const data = typeof rawData === "string" ? JSON.parse(rawData) : rawData;
       
-      return { messages: msgs, lastReceivedAt: meta?.lastReceivedAt }
-    },
-    {
-      refreshInterval: 3000,
-      revalidateOnFocus: true,
-    },
-  )
+      if (data.type === "messages_list" && data.phoneNumber === phoneNumber) {
+          setWsMessages(data.data || [])
+          setLastReceivedAt(data.meta?.lastReceivedAt)
+      }
+
+      if (data.type === "message" && data.phoneNumber === phoneNumber) {
+        ws.send({ action: "get_messages", data: { phoneNumber } })
+      }
+    })
+
+    ws.on("close", () => {
+        setIsWsConnecting(true)
+    })
+
+    return () => {
+      ws.close()
+      wsRef.current = null
+    }
+  }, [phoneNumber])
+
+  const sendMessage = useCallback(async (msgData: any) => {
+      if (wsRef.current) {
+          wsRef.current.send({ action: "send_message", data: msgData })
+      } else {
+          // Fallback or queue if WS not ready
+          console.warn("WS not ready, skipping message send");
+      }
+  }, [])
 
   return {
-    messages: data?.messages || [],
-    lastReceivedAt: data?.lastReceivedAt,
-    isLoading: !error && !data,
-    isError: error,
-    mutate,
+    messages: wsMessages,
+    lastReceivedAt,
+    isLoading: isWsConnecting,
+    isError: false,
+    mutate: () => {
+        if (wsRef.current) {
+            wsRef.current.send({ action: "get_messages", data: { phoneNumber } })
+        }
+    },
+    sendMessage
   }
 }

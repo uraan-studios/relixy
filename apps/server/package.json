@@ -2,7 +2,8 @@
   "name": "api-app",
   "private": true,
   "scripts": {
-    "start": "bun run server.ts"
+    "start": "bun run src/server.ts",
+    "dev": "bun run --watch src/server.ts"
   },
   "dependencies": {
     "@repo/api": "*"

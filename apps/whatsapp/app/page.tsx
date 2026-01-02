@@ -1,8 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { ChatInterface } from "@/components/chat-interface"
-import { NavRail } from "@/components/nav-rail"
 import { SettingsView } from "@/components/settings-view"
 import { Sidebar } from "@/components/sidebar"
 import { ChatWindow } from "@/components/chat-window"
@@ -13,59 +11,69 @@ export default function WhatsAppClone() {
   const [selectedContact, setSelectedContact] = useState<any>(null) // Lifted state
   const [showContactInfo, setShowContactInfo] = useState(false)
 
+  // Handlers
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab)
+    if (tab === "settings") {
+      // Optional: Logic to open settings dialog instead of full view
+    }
+  }
+
   return (
-    <main className="h-screen w-full bg-[#0b141a] overflow-hidden flex text-[#e9edef] font-sans">
-        {/* Navigation Rail */}
-        <NavRail activeTab={activeTab} onTabChange={setActiveTab} />
+    <main className="h-screen w-full bg-background overflow-hidden flex text-foreground font-sans">
+        {/* Sidebar / Chat List - Persistent */}
+        <div className="w-[380px] border-r border-border h-full bg-sidebar flex flex-col">
+            <Sidebar 
+                activeTab={activeTab} 
+                onSelectContact={(c) => {
+                    setSelectedContact(c)
+                    setShowContactInfo(false) // Reset on change
+                }}
+                selectedContactId={selectedContact?.id || null}
+                onTabChange={handleTabChange}
+            />
+        </div>
 
         {/* Content Area */}
-        <div className="flex-1 flex overflow-hidden">
-            {activeTab === "settings" || activeTab === "profile" ? (
-                <SettingsView />
-            ) : (
-                <>
-                    {/* Sidebar / Chat List */}
-                    <div className="w-[400px] border-r border-[#222e35] h-full bg-[#111b21]">
-                        <Sidebar 
-                            activeTab={activeTab} 
-                            onSelectContact={(c) => {
-                                setSelectedContact(c)
-                                setShowContactInfo(false) // Reset on change
-                            }}
-                            selectedContactId={selectedContact?.id || null}
-                        />
-                    </div>
-                    {/* Main Chat Window */}
-                    <div className="flex-1 h-full bg-[#0b141a] relative flex">
-                         {selectedContact ? (
-                            <>
-                                <div className="flex-1 flex flex-col min-w-0">
-                                    <ChatWindow 
-                                        contact={selectedContact}
-                                        onBack={() => setSelectedContact(null)} // For mobile if we add it later
-                                        onProfileClick={() => setShowContactInfo(!showContactInfo)}
-                                    />
-                                </div>
-                                {showContactInfo && (
-                                    <ContactInfoSidebar 
-                                        contact={selectedContact} 
-                                        onClose={() => setShowContactInfo(false)} 
-                                    />
-                                )}
-                            </>
-                         ) : (
-                             // Empty State
-                             <div className="h-full w-full flex flex-col items-center justify-center bg-[#222e35] border-b-[6px] border-[#00a884]">
-                                 <h1 className="text-3xl font-light text-[#e9edef] mb-4">WhatsApp for Windows</h1>
-                                 <p className="text-[#8696a0] text-sm text-center max-w-md leading-6">
-                                     Send and receive messages without keeping your phone online. <br/>
-                                     Use WhatsApp on up to 4 linked devices and 1 phone.
-                                 </p>
-                             </div>
+        <div className="flex-1 flex overflow-hidden bg-background relative z-0">
+             {/* Main Chat Window */}
+             <div className="flex-1 h-full relative flex flex-col">
+                  {selectedContact ? (
+                     <div className="flex-1 flex min-w-0">
+                         <div className="flex-1 flex flex-col min-w-0">
+                             <ChatWindow 
+                                 contact={selectedContact}
+                                 onBack={() => setSelectedContact(null)} // For mobile if we add it later
+                                 onProfileClick={() => setShowContactInfo(!showContactInfo)}
+                             />
+                         </div>
+                         {showContactInfo && (
+                             <ContactInfoSidebar 
+                                 contact={selectedContact} 
+                                 onClose={() => setShowContactInfo(false)} 
+                             />
                          )}
-                    </div>
-                </>
-            )}
+                     </div>
+                  ) : activeTab === "settings" ? (
+                      <SettingsView />
+                  ) : (
+                      // Empty State
+                      <div className="h-full w-full flex flex-col items-center justify-center bg-muted/20 text-muted-foreground p-8">
+                          <div className="max-w-md text-center space-y-4">
+                              <h1 className="text-2xl font-light text-foreground">Welcome to WhatsApp</h1>
+                              <p className="text-sm">
+                                  Send and receive messages without keeping your phone online. <br/>
+                                  Use WhatsApp on up to 4 linked devices and 1 phone.
+                              </p>
+                              <div className="text-xs mt-8 opacity-50">
+                                  <p className="flex items-center justify-center gap-1">
+                                      <span>🔒</span> End-to-end encrypted
+                                  </p>
+                              </div>
+                          </div>
+                      </div>
+                  )}
+             </div>
         </div>
     </main>
   )

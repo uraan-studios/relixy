@@ -1,15 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Monitor, Key, Lock, FileText, Video, Bell, Keyboard, HelpCircle, User, Pencil, Camera } from "lucide-react"
+import { Search, Monitor, Key, Lock, Video, Bell, Keyboard, HelpCircle, User, Pencil, Camera } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-
-const API_BASE_URL = "http://localhost:8080"
+import { cn } from "@/lib/utils"
 
 export function SettingsView() {
   const [activeSetting, setActiveSetting] = useState("Profile")
@@ -45,12 +44,12 @@ export function SettingsView() {
                   <div className="max-w-xl w-full p-8 animate-in fade-in duration-300">
                       <div className="flex flex-col items-center mb-8">
                           <div className="relative group cursor-pointer">
-                              <Avatar className="h-40 w-40">
+                              <Avatar className="h-40 w-40 ring-4 ring-muted">
                                   <AvatarImage src="/placeholder.svg" />
-                                  <AvatarFallback className="text-4xl bg-[#00a884] text-white">YS</AvatarFallback>
+                                  <AvatarFallback className="text-4xl bg-primary text-primary-foreground">YS</AvatarFallback>
                               </Avatar>
-                              <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <div className="flex flex-col items-center text-white">
+                              <div className="absolute inset-0 bg-muted/40 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="flex flex-col items-center text-primary-foreground">
                                       <Camera className="h-8 w-8 mb-1" />
                                       <span className="text-xs uppercase font-medium">Change</span>
                                   </div>
@@ -70,49 +69,49 @@ export function SettingsView() {
                       </div>
 
                       <div className="mb-8">
-                          <Label className="text-[#00a884] text-sm mb-4 block">Your name</Label>
+                          <Label className="text-primary text-sm mb-4 block">Your name</Label>
                           <div className="flex items-center justify-between group">
                               {isEditingName ? (
                                   <div className="flex items-center gap-2 w-full">
                                       <Input 
                                           value={profileName} 
                                           onChange={(e) => setProfileName(e.target.value)} 
-                                          className="bg-transparent border-b-2 border-[#00a884] rounded-none px-0 focus-visible:ring-0"
+                                          className="bg-transparent border-b-2 border-primary rounded-none px-0 focus-visible:ring-0"
                                           autoFocus
                                       />
-                                      <Button size="icon" variant="ghost" onClick={handleSaveProfile}><span className="text-[#8696a0]">✓</span></Button>
+                                      <Button size="icon" variant="ghost" onClick={handleSaveProfile}><span className="text-muted-foreground">✓</span></Button>
                                   </div>
                               ) : (
                                   <>
-                                    <span className="text-[#e9edef] text-base fle-1">{profileName}</span>
-                                    <Button size="icon" variant="ghost" onClick={() => setIsEditingName(true)} className="text-[#8696a0] opacity-0 group-hover:opacity-100">
+                                    <span className="text-foreground text-base fle-1">{profileName}</span>
+                                    <Button size="icon" variant="ghost" onClick={() => setIsEditingName(true)} className="text-muted-foreground opacity-0 group-hover:opacity-100">
                                         <Pencil className="h-5 w-5" />
                                     </Button>
                                   </>
                               )}
                           </div>
-                          <p className="text-[#8696a0] text-sm mt-3">
+                          <p className="text-muted-foreground text-sm mt-3">
                               This is not your username or pin. This name will be visible to your WhatsApp contacts.
                           </p>
                       </div>
 
                       <div className="mb-8">
-                          <Label className="text-[#00a884] text-sm mb-4 block">About</Label>
+                          <Label className="text-primary text-sm mb-4 block">About</Label>
                            <div className="flex items-center justify-between group">
                               {isEditingAbout ? (
                                   <div className="flex items-center gap-2 w-full">
                                       <Input 
                                           value={profileAbout} 
                                           onChange={(e) => setProfileAbout(e.target.value)} 
-                                          className="bg-transparent border-b-2 border-[#00a884] rounded-none px-0 focus-visible:ring-0"
+                                          className="bg-transparent border-b-2 border-primary rounded-none px-0 focus-visible:ring-0"
                                           autoFocus
                                       />
-                                        <Button size="icon" variant="ghost" onClick={handleSaveProfile}><span className="text-[#8696a0]">✓</span></Button>
+                                        <Button size="icon" variant="ghost" onClick={handleSaveProfile}><span className="text-muted-foreground">✓</span></Button>
                                   </div>
                               ) : (
                                   <>
-                                    <span className="text-[#e9edef] text-base fle-1">{profileAbout}</span>
-                                    <Button size="icon" variant="ghost" onClick={() => setIsEditingAbout(true)} className="text-[#8696a0] opacity-0 group-hover:opacity-100">
+                                    <span className="text-foreground text-base fle-1">{profileAbout}</span>
+                                    <Button size="icon" variant="ghost" onClick={() => setIsEditingAbout(true)} className="text-muted-foreground opacity-0 group-hover:opacity-100">
                                         <Pencil className="h-5 w-5" />
                                     </Button>
                                   </>
@@ -123,9 +122,9 @@ export function SettingsView() {
               )
           default:
               return (
-                  <div className="flex flex-col items-center justify-center h-full text-[#8696a0]">
+                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                       <Monitor className="h-16 w-16 mb-4 opacity-20" />
-                      <h3 className="text-[#e9edef] text-lg font-medium">Settings: {activeSetting}</h3>
+                      <h3 className="text-foreground text-lg font-medium">Settings: {activeSetting}</h3>
                       <p>This section is under construction.</p>
                   </div>
               )
@@ -133,31 +132,36 @@ export function SettingsView() {
   }
 
   return (
-    <div className="flex h-full w-full">
+    <div className="flex h-full w-full bg-background text-foreground">
       {/* Settings Sidebar (Left) */}
-      <div className="w-[350px] flex flex-col h-full bg-[#111b21] border-r border-[#222e35]">
+      <div className="w-[350px] flex flex-col h-full bg-sidebar border-r border-border">
         <div className="p-4 pt-8 h-full flex flex-col">
-            <h1 className="text-xl font-semibold mb-4 text-[#e9edef] px-3">Settings</h1>
+            <h1 className="text-xl font-semibold mb-4 text-foreground px-3">Settings</h1>
             <div className="relative mb-4 px-3">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8696a0]" />
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
                     placeholder="Search settings" 
-                    className="pl-9 bg-[#202c33] border-none text text-[#d1d7db] placeholder:text-[#8696a0] h-9 focus-visible:ring-1 focus-visible:ring-[#00a884] rounded-md"
+                    className="pl-9 bg-sidebar-accent border-none text-foreground placeholder:text-muted-foreground h-9 focus-visible:ring-1 focus-visible:ring-primary rounded-md"
                 />
             </div>
 
             <ScrollArea className="flex-1 -mx-4 px-4">
-                <div className="space-y-0.5 pb-4">
+                <div className="space-y-1 pb-4">
                     {settingsItems.map((item, i) => (
                         <div 
                             key={i} 
                             onClick={() => setActiveSetting(item.label)}
-                            className={`flex items-center gap-4 p-3 px-5 cursor-pointer transition-colors ${activeSetting === item.label ? 'bg-[#202c33]' : 'hover:bg-[#202c33]'}`}
+                            className={cn(
+                                "flex items-center gap-4 p-3 px-5 cursor-pointer transition-all rounded-lg mx-2",
+                                activeSetting === item.label 
+                                    ? 'bg-sidebar-accent text-foreground' 
+                                    : 'hover:bg-sidebar-accent/50 text-muted-foreground hover:text-foreground'
+                            )}
                         >
-                            <item.icon className={`h-5 w-5 ${activeSetting === item.label ? 'text-[#00a884]' : 'text-[#8696a0]'}`} />
+                            <item.icon className={cn("h-5 w-5", activeSetting === item.label ? 'text-primary' : 'text-muted-foreground')} />
                             <div>
-                                <h3 className="text-[#e9edef] text-base font-normal">{item.label}</h3>
-                                {item.sub && <p className="text-[#8696a0] text-xs mt-0.5">{item.sub}</p>}
+                                <h3 className="text-base font-normal">{item.label}</h3>
+                                {item.sub && <p className="text-xs mt-0.5 opacity-70">{item.sub}</p>}
                             </div>
                         </div>
                     ))}
@@ -165,7 +169,7 @@ export function SettingsView() {
             </ScrollArea>
             
             {/* Version Info */}
-            <div className="p-4 text-[#8696a0] text-xs border-t border-[#222e35] mt-auto">
+            <div className="p-4 text-muted-foreground text-xs border-t border-border mt-auto">
                 <p>Relixy WhatsApp Clone</p>
                 <p>Version 2.24.5.76</p>
             </div>
@@ -173,7 +177,7 @@ export function SettingsView() {
       </div>
 
       {/* Settings Detail (Right) */}
-      <div className="flex-1 bg-[#0b141a] flex flex-col overflow-y-auto">
+      <div className="flex-1 bg-background flex flex-col overflow-y-auto">
             {renderContent()}
       </div>
     </div>

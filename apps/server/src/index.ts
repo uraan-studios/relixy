@@ -1,4 +1,4 @@
-import { app } from "@repo/api";
+import app from "@repo/api";
 
 export default app;
 
