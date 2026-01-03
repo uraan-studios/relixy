@@ -11,8 +11,12 @@ import { toast } from "sonner"
 
 const API_BASE_URL = "http://localhost:8080"
 
-export function SettingsDialog() {
-  const [open, setOpen] = useState(false)
+export function SettingsDialog({ open, onOpenChange }: { open?: boolean; onOpenChange?: (open: boolean) => void }) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlled = open !== undefined
+  const show = isControlled ? open : internalOpen
+  const setShow: any = isControlled ? onOpenChange : setInternalOpen
+  
   const [isLoading, setIsLoading] = useState(false)
   
   const [aboutText, setAboutText] = useState("")
@@ -61,12 +65,14 @@ export function SettingsDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
-            <Settings className="h-5 w-5" />
-        </Button>
-      </DialogTrigger>
+    <Dialog open={show} onOpenChange={setShow}>
+      {!isControlled && (
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+                <Settings className="h-5 w-5" />
+            </Button>
+          </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px] glass-card border-border/40 shadow-2xl backdrop-blur-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-purple-500">Business Settings</DialogTitle>

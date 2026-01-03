@@ -229,7 +229,19 @@ export function ChatWindow({ contact, onBack, onProfileClick }: ChatWindowProps)
                 status={msg.status}
                 type={msg.type || "text"}
                 mediaUrl={msg.mediaUrl}
+                metadata={msg.metadata}
                 caption={msg.type === "image" ? msg.body : undefined}
+                onOptionSelect={(opt) => {
+                    if (isSending) return;
+                    // Optimistically add message or just let WS handle it? 
+                    // Let's just send.
+                    wsSendMessage({ 
+                       to: phoneNumber, 
+                       text: opt, 
+                       type: 'text' 
+                    });
+                    // Also play a sound or vibration?
+                }}
               />
             ))}
              {!isWithin24hWindow && (

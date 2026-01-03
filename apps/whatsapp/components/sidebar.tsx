@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { TemplateSelector } from "@/components/template-selector"
 import { LabelManager } from "@/components/label-manager"
+import { SettingsDialog } from "@/components/settings-dialog"
 import { useContacts } from "@/hooks/use-contacts"
 import { cn } from "@/lib/utils"
 
@@ -124,6 +125,7 @@ export function Sidebar({ onSelectContact, selectedContactId, activeTab, onTabCh
 
   const [searchQuery, setSearchQuery] = useState("")
   const [isNewChatOpen, setIsNewChatOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [newChatName, setNewChatName] = useState("")
   const [newChatPhone, setNewChatPhone] = useState("")
   const [selectedTemplateName, setSelectedTemplateName] = useState<string | null>(null)
@@ -207,11 +209,13 @@ export function Sidebar({ onSelectContact, selectedContactId, activeTab, onTabCh
                          {theme === "dark" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
                          Toggle Theme
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setIsSettingsOpen(true)}>
                           <Settings className="mr-2 h-4 w-4" /> Settings
                       </DropdownMenuItem>
                   </DropdownMenuContent>
                  </DropdownMenu>
+
+                 <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
 
                  {/* Navigation Pills */}
                  <div className="flex gap-1 bg-secondary/50 p-1 rounded-2xl border border-border/50 backdrop-blur-md">

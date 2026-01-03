@@ -11,6 +11,8 @@ interface MessageBubbleProps {
   type?: "text" | "image" | "file" | "template"
   mediaUrl?: string
   caption?: string
+  metadata?: any
+  onOptionSelect?: (option: string) => void
 }
 
 export function MessageBubble({
@@ -20,7 +22,9 @@ export function MessageBubble({
   status = "sent",
   type = "text",
   mediaUrl,
+  metadata,
   caption,
+  onOptionSelect,
 }: MessageBubbleProps) {
   
   // Helper to resolve media URL
@@ -81,23 +85,29 @@ export function MessageBubble({
         )}
 
         {/* Attachment: File */}
-        {type === "file" && (
-            <div className={cn(
-                "flex items-center gap-3 p-3 rounded-xl border mb-2 transition-colors",
-                 isSender ? "bg-white/10 border-white/20 hover:bg-white/20" : "bg-muted/50 border-border/50 hover:bg-muted/80"
-            )}>
-              <div className={cn("p-2.5 rounded-lg", isSender ? "bg-white/20" : "bg-primary/10")}>
+        {(type === "file" || type === "document") && (
+            <a 
+                href={displayUrl} 
+                target="_blank" 
+                rel="noreferrer"
+                className={cn(
+                    "flex items-center gap-3 p-3 rounded-xl border mb-2 transition-colors cursor-pointer group/file",
+                    isSender ? "bg-white/10 border-white/20 hover:bg-white/20" : "bg-muted/50 border-border/50 hover:bg-muted/80"
+                )}
+            >
+              <div className={cn("p-2.5 rounded-lg transition-colors", isSender ? "bg-white/20 group-hover/file:bg-white/30" : "bg-primary/10 group-hover/file:bg-primary/20")}>
                 <FileIcon className={cn("h-5 w-5", isSender ? "text-white" : "text-primary")} />
               </div>
               <div className="flex flex-col min-w-[120px]">
-                <span className="text-sm font-semibold truncate opacity-95">Attachment</span>
+                <span className="text-sm font-semibold truncate opacity-95 max-w-[200px]">{message || "Attachment"}</span>
                 <span className="text-[10px] opacity-75 font-mono uppercase tracking-wider">Document</span>
               </div>
-            </div>
+              <Download className={cn("h-4 w-4 ml-2 opacity-0 group-hover/file:opacity-100 transition-opacity", isSender ? "text-white" : "text-primary")} />
+            </a>
         )}
 
         {/* Text Content */}
-        {(type === "text" || type === "template" || caption) && (
+        {(type === "text" || type === "template" || type === "button" || type === "interactive" || caption) && (
             <p className={cn(
                 "leading-relaxed whitespace-pre-wrap break-words tracking-wide", 
                 type !== 'text' && "pt-2 px-1 pb-1",
@@ -106,6 +116,41 @@ export function MessageBubble({
                 {caption || message}
             </p>
         )}
+
+        {/* Start: Metadata Options (Buttons) */}
+        {(() => {
+            let meta = null;
+            try {
+                if (typeof metadata === 'string') {
+                    meta = JSON.parse(metadata);
+                } else {
+                    meta = metadata;
+                }
+            } catch (e) {}
+
+            if (meta?.options && Array.isArray(meta.options)) {
+                return (
+                    <div className="flex flex-col gap-1.5 mt-3 pt-2 border-t border-black/5 dark:border-white/5">
+                        {meta.options.map((opt: string, i: number) => (
+                            <button 
+                                key={i} 
+                                onClick={() => onOptionSelect?.(opt)}
+                                disabled={!onOptionSelect}
+                                className={cn(
+                                    "py-2 px-3 text-center rounded-lg text-sm font-medium border border-black/5 dark:border-white/5 transition-colors",
+                                    "bg-white/50 dark:bg-black/20 text-primary",
+                                    onOptionSelect ? "hover:bg-primary hover:text-white cursor-pointer active:scale-[0.98]" : "cursor-default opacity-80"
+                                )}
+                            >
+                                {opt}
+                            </button>
+                        ))}
+                    </div>
+                )
+            }
+            return null;
+        })()}
+        {/* End: Metadata Options */}
 
         {/* Metadata (Time + Status) */}
         <div className={cn(
