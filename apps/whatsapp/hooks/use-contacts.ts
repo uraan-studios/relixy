@@ -1,42 +1,57 @@
-import { useState, useEffect } from "react"
-import { client } from "@/lib/api"
+"use client";
 
-// type App = any;
-// const API_BASE_URL = "http://localhost:3000"
-// const client: any = treaty<App>(API_BASE_URL)
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useContacts() {
-    const [contacts, setContacts] = useState<any[]>([])
-    const [isLoading, setIsLoading] = useState(true)
+  const { data: contacts, mutate: mutateContacts, error } = useSWR("http://localhost:8080/contacts", fetcher, {
+    refreshInterval: 5000,
+  });
 
-    useEffect(() => {
-        const ws = client.ws.subscribe()
+  const { data: labels, mutate: mutateLabels } = useSWR("http://localhost:8080/labels", fetcher);
 
-        ws.on("open", () => {
-            setIsLoading(false)
-            ws.send({ action: "get_contacts", data: {} })
-        })
+  const createLabel = async (name: string, color: string) => {
+    await fetch("http://localhost:8080/labels", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, color }),
+    });
+    mutateLabels();
+  };
 
-        ws.on("message", (event: any) => {
-            if (!event) return;
-            const rawData = event.data !== undefined ? event.data : event;
-            const data = typeof rawData === "string" ? JSON.parse(rawData) : rawData;
-            
-            // console.log("WS Event in useContacts:", data.type); // Debugging
+  const deleteLabel = async (id: string) => {
+    await fetch(`http://localhost:8080/labels/${id}`, {
+      method: "DELETE",
+    });
+    mutateLabels();
+    mutateContacts(); // Contacts might have this label removed
+  };
 
-            if (data.type === "contacts_list") {
-                setContacts(data.data || [])
-            }
+  const addLabelToContact = async (contactId: string, labelId: string) => {
+    await fetch(`http://localhost:8080/contacts/${contactId}/labels`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ labelId }),
+    });
+    mutateContacts();
+  };
 
-            if (data.type === "message" || data.type === "read_update") {
-                ws.send({ action: "get_contacts", data: {} })
-            }
-        })
+  const removeLabelFromContact = async (contactId: string, labelId: string) => {
+    await fetch(`http://localhost:8080/contacts/${contactId}/labels/${labelId}`, {
+      method: "DELETE",
+    });
+    mutateContacts();
+  };
 
-        return () => {
-            ws.close()
-        }
-    }, [])
-
-    return { contacts, isLoading }
+  return {
+    contacts: contacts?.data || contacts, // Handle if wrapper exists
+    labels: labels || [],
+    isLoading: !contacts && !error,
+    isError: error,
+    createLabel,
+    deleteLabel,
+    addLabelToContact,
+    removeLabelFromContact,
+  };
 }

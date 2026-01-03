@@ -4,23 +4,23 @@
 
 :root {
   /* Daylight Glass Theme - Light Mode */
-  --background: 210 40% 98%; 
-  --foreground: 222 47% 11%;
+  --background: 220 30% 98%; /* Slightly cooler white */
+  --foreground: 224 71% 4%;
   
   --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card-foreground: 224 71% 4%;
   
   --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
+  --popover-foreground: 224 71% 4%;
   
-  --primary: 262 83% 58%; 
+  --primary: 262 83% 58%; /* Vivid Purple */
   --primary-foreground: 210 40% 98%;
   
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222 47% 11.2%;
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 220 9% 46%;
   
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
   
   --accent: 262 83% 58%;
   --accent-foreground: 210 40% 98%;
@@ -28,61 +28,71 @@
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
   
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
   --ring: 262 83% 58%;
   
   --radius: 1rem;
    
   /* Chat Specifics - Light */
   --sidebar: 0 0% 100%;
-  --sidebar-foreground: 222 47% 11%;
-  --sidebar-accent: 210 40% 96.1%;
-  --sidebar-border: 214.3 31.8% 91.4%;
+  --sidebar-foreground: 224 71% 4%;
+  --sidebar-accent: 220 14% 95%;
+  --sidebar-border: 220 13% 91%;
   
-  --whatsapp-green: #25d366;
+  --whatsapp-green: 142 70% 49%;
   --bubble-sent: 262 83% 58%;
-  --bubble-received: 210 40% 96.1%;
+  --bubble-received: 220 14% 96%;
+  
+  /* Glass Effect Variables */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-blur: 12px;
 }
 
 .dark {
   /* Midnight Glass Theme - Dark Mode */
-  --background: 222 47% 8%;
+  --background: 224 71% 4%; /* Deep dark blue-black */
   --foreground: 210 40% 98%;
   
-  --card: 222 47% 10%;
+  --card: 224 71% 4%;
   --card-foreground: 210 40% 98%;
   
-  --popover: 222 47% 10%;
+  --popover: 224 71% 4%;
   --popover-foreground: 210 40% 98%;
   
-  --primary: 252 100% 68%;
+  --primary: 263 70% 50%; /* Deep Purple */
   --primary-foreground: 210 40% 98%;
   
-  --secondary: 217 33% 15%; 
+  --secondary: 215 27% 17%; 
   --secondary-foreground: 210 40% 98%;
   
-  --muted: 217 33% 15%;
+  --muted: 215 27% 17%;
   --muted-foreground: 215 20% 65%;
   
-  --accent: 252 100% 68%;
+  --accent: 263 70% 50%;
   --accent-foreground: 210 40% 98%;
   
   --destructive: 0 62% 30%;
   --destructive-foreground: 210 40% 98%;
   
-  --border: 217 33% 15%;
-  --input: 217 33% 20%;
-  --ring: 252 100% 68%;
+  --border: 215 27% 17%;
+  --input: 215 27% 17%;
+  --ring: 263 70% 50%;
   
   /* Chat Specifics - Dark */
-  --sidebar: 222 47% 8%;
+  --sidebar: 224 71% 4%;
   --sidebar-foreground: 210 40% 98%;
-  --sidebar-accent: 217 33% 15%;
-  --sidebar-border: 217 33% 20%;
+  --sidebar-accent: 215 27% 17%;
+  --sidebar-border: 215 27% 17%;
   
-  --bubble-sent: 252 50% 25%;
-  --bubble-received: 217 33% 20%;
+  --bubble-sent: 263 70% 50%;
+  --bubble-received: 215 27% 17%;
+
+  /* Glass Effect Variables */
+  --glass-bg: rgba(10, 10, 30, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 16px;
 }
 
 @theme inline {
@@ -116,6 +126,9 @@
   
   --color-bubble-sent: hsl(var(--bubble-sent));
   --color-bubble-received: hsl(var(--bubble-received));
+  
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 @layer base {
@@ -124,7 +137,39 @@
   }
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/20;
-    /* Clean futuristic font stack */
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
+
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-[var(--glass-blur)] bg-[var(--glass-bg)] border border-[var(--glass-border)];
+  }
+  
+  .glass-card {
+     @apply backdrop-blur-md bg-card/80 border border-border/50 shadow-sm transition-all hover:shadow-md;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-linear-to-r from-primary to-purple-400;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out forwards;
 }

@@ -5,9 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-// import { Textarea } from "@/components/ui/textarea" // Need to make this or use Input
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Settings, Upload, Loader2 } from "lucide-react"
+import { Settings, Upload, Loader2, Camera } from "lucide-react"
 import { toast } from "sonner"
 
 const API_BASE_URL = "http://localhost:8080"
@@ -64,25 +63,34 @@ export function SettingsDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-muted-foreground">
+        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
             <Settings className="h-5 w-5" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-[#0b141a] text-foreground border-border">
+      <DialogContent className="sm:max-w-[425px] glass-card border-border/40 shadow-2xl backdrop-blur-xl">
         <DialogHeader>
-          <DialogTitle>Business Settings</DialogTitle>
+          <DialogTitle className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-purple-500">Business Settings</DialogTitle>
         </DialogHeader>
         
-        <div className="grid gap-6 py-4">
+        <div className="grid gap-8 py-6">
             {/* Avatar Section */}
-            <div className="flex flex-col items-center gap-4">
-                <Avatar className="h-24 w-24">
-                    {selectedFile ? (
-                        <AvatarImage src={URL.createObjectURL(selectedFile)} />
-                    ) : (
-                        <AvatarFallback>DP</AvatarFallback>
-                    )}
-                </Avatar>
+            <div className="flex flex-col items-center gap-6">
+                <div className="relative group">
+                    <Avatar className="h-28 w-28 ring-4 ring-background shadow-xl">
+                        {selectedFile ? (
+                            <AvatarImage src={URL.createObjectURL(selectedFile)} className="object-cover" />
+                        ) : (
+                            <AvatarFallback className="bg-gradient-to-br from-primary via-purple-500 to-blue-500 text-white text-2xl">DP</AvatarFallback>
+                        )}
+                    </Avatar>
+                     <div 
+                        className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer backdrop-blur-sm"
+                        onClick={() => fileInputRef.current?.click()}
+                     >
+                        <Camera className="h-8 w-8 text-white" />
+                     </div>
+                </div>
+
                 <div className="flex items-center gap-2">
                     <input 
                         type="file" 
@@ -95,6 +103,7 @@ export function SettingsDialog() {
                         variant="outline" 
                         size="sm" 
                         onClick={() => fileInputRef.current?.click()}
+                        className="rounded-full"
                     >
                         <Upload className="h-4 w-4 mr-2" />
                         Choose Photo
@@ -103,6 +112,7 @@ export function SettingsDialog() {
                         size="sm" 
                         disabled={!selectedFile || isLoading}
                         onClick={handleUpdateAvatar}
+                        className="rounded-full bg-primary hover:bg-primary/90"
                     >
                          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Upload"}
                     </Button>
@@ -110,17 +120,21 @@ export function SettingsDialog() {
             </div>
 
             {/* About / Status Section */}
-            <div className="grid gap-2">
-                <Label htmlFor="about">About (Status)</Label>
+            <div className="space-y-3">
+                <Label htmlFor="about" className="text-muted-foreground font-medium">About (Status)</Label>
                 <div className="flex gap-2">
                     <Input 
                         id="about" 
                         value={aboutText} 
                         onChange={(e) => setAboutText(e.target.value)}
                         placeholder="Available"
-                        className="bg-transparent"
+                        className="bg-secondary/50 border-transparent focus:border-primary/50 focus:bg-background transition-all"
                     />
-                    <Button disabled={!aboutText || isLoading} onClick={handleUpdateProfile}>
+                    <Button 
+                        disabled={!aboutText || isLoading} 
+                        onClick={handleUpdateProfile}
+                        className="bg-primary hover:bg-primary/90"
+                    >
                         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
                     </Button>
                 </div>
